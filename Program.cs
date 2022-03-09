@@ -76,7 +76,7 @@ sendCommand.SetHandler((bool secure, string host, int? port, string? user, strin
     }
     catch (Exception ex)
     {
-        Console.WriteLine(ex.Message);
+        Console.WriteLine($"Error: {ex.Message}");
     }
     finally
     {
@@ -106,12 +106,11 @@ receiveCommand.SetHandler((bool secure, string host, int? port, string? user, st
             using var message = receiver.Receive(receiveTimeoutSeconds == -1 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(receiveTimeoutSeconds));
             Console.WriteLine($"Message {i + 1} received");
             receiver.Accept(message);
-            Console.WriteLine($"Message {i + 1} accepted");
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine(ex.Message);
+        Console.WriteLine($"Error: {ex.Message}");
     }
     finally
     {
