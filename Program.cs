@@ -59,8 +59,9 @@ sendCommand.SetHandler((bool secure, string host, int? port, string? user, strin
 
     try
     {
-        var address = new Address(host, port == null || !secure ? insecurePort : securePort, user, password, "/", (secure ? secureScheme : insecureScheme).ToLower());
-
+        var address = new Address(host, port ?? (secure ? securePort : insecurePort), user, password, "/", (secure ? secureScheme : insecureScheme).ToLower());
+        Console.WriteLine($"Connecting to {address.Scheme}://{address.User}:{new string('*', address.Password.Length)}@{address.Host}:{address.Port}{address.Path}");
+        
         connection = new Connection(address);
         session = new Session(connection);
         sender = new SenderLink(session, senderName, queueName);
@@ -93,7 +94,8 @@ receiveCommand.SetHandler((bool secure, string host, int? port, string? user, st
 
     try
     {
-        var address = new Address(host, port == null || !secure ? insecurePort : securePort, user, password, "/", (secure ? secureScheme : insecureScheme).ToLower());
+        var address = new Address(host, port ?? (secure ? securePort : insecurePort), user, password, "/", (secure ? secureScheme : insecureScheme).ToLower());
+        Console.WriteLine($"Connecting to {address.Scheme}://{address.User}:{new string('*', address.Password.Length)}@{address.Host}:{address.Port}{address.Path}");
 
         connection = new Connection(address);
         session = new Session(connection);
