@@ -41,7 +41,7 @@ List the certififcates in an X509 store<br>
 ``-?``, ``-h``, ``--help`` Show help and usage information
 
 **Examples:**<br>
-``docker run --rm danbrill/amqp-test:1.0.4 listX509Store --storeName My --storeLocation CurrentUser``
+``amqp-test listX509Store --storeName My --storeLocation CurrentUser``
 
 ## send
 
@@ -67,8 +67,8 @@ AMQP message sender<br>
 ``-?``, ``-h``, ``--help`` Show help and usage information<br>
 
 **Examples:**<br>
-``docker run --rm danbrill/amqp-test:1.0.4 send --host activemq --user admin --password admin``<br>
-``docker run --mount "type=bind,source=$pwd,target=/tmp/ssl/certs" --rm danbrill/amqp-test:1.0.4 send --secure --host activemq --user admin --password admin --rootCertFileName /tmp/ssl/certs/ca.crt``<br>
+``amqp-test send --host activemq --user admin --password admin``<br>
+``amqp-test send --secure --host activemq --user admin --password admin --rootCertFileName ca.crt``<br>
 
 ## receive
 
@@ -94,5 +94,5 @@ AMQP message receiver<br>
 ``-?``, ``-h``, ``--help`` Show help and usage information<br>
 
 **Examples:**<br>
-``docker run --rm danbrill/amqp-test:1.0.4 receive --host activemq --user admin --password admin``<br>
-``docker run --mount "type=bind,source=$pwd,target=/tmp/ssl/certs" --rm danbrill/amqp-test:1.0.4 receive --secure --host activemq --user admin --password admin --rootCertFileName /tmp/ssl/certs/ca.crt``<br>
+``amqp-test receive --host activemq --user admin --password admin``<br>
+``amqp-test receive --secure --host activemq --user admin --password admin --rootCertFileName ca.crt``<br>
