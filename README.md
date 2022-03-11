@@ -1,3 +1,5 @@
+A basic AMQP 1.0 test tool for both sending and receiving secured/unsecured messages.
+
 # Summary
 
 **Description:**<br>
