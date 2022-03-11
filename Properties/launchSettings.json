@@ -4,6 +4,10 @@
       "commandName": "Project",
       "commandLineArgs": "send --secure --host activemq-1 --user admin --password admin"
     },
+    "amqp-test-send-secured-novalidation": {
+      "commandName": "Project",
+      "commandLineArgs": "send --secure --host activemq-1 --user admin --password admin --disableServerCertValidation"
+    },
     "amqp-test-send-unsecured": {
       "commandName": "Project",
       "commandLineArgs": "send --host activemq-1 --user admin --password admin"
@@ -11,6 +15,10 @@
     "amqp-test-receive-secured": {
       "commandName": "Project",
       "commandLineArgs": "receive --secure --host activemq-1 --user admin --password admin"
+    },
+    "amqp-test-receive-secured-novalidation": {
+      "commandName": "Project",
+      "commandLineArgs": "receive --secure --host activemq-1 --user admin --password admin --disableServerCertValidation"
     },
     "amqp-test-receive-unsecured": {
       "commandName": "Project",
