@@ -1,0 +1,9 @@
+FROM ubuntu:22.04
+
+RUN apt-get update
+RUN apt-get --yes install openssl
+
+RUN mkdir /bin/amqp-test
+COPY amqp-test /bin/amqp-test
+
+ENTRYPOINT ["/bin/amqp-test/amqp-test"]
