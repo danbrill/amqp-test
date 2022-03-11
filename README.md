@@ -1,4 +1,4 @@
-A basic AMQP 1.0 test tool for both sending and receiving secured/unsecured messages.
+A basic AMQP 1.0 test tool for both sending and receiving secured/unsecured messages. The code is written in .NET 6 (C#) using Visual Studio 2022 and has been tested under both *linux-x64* and *win-x64*.
 
 # Summary
 
