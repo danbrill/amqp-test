@@ -16,10 +16,10 @@ var hostOption = new Option<string>("--host", "The broker host name") {IsRequire
 var portOption = new Option<int?>("--port", $"The broker host port (if not specified, {unsecuredPort} will be assumed for {unsecuredScheme}, {securedPort} for {securedScheme})");
 var userOption = new Option<string?>("--user", "The broker user's name");
 var passwordOption = new Option<string?>("--password", "The broker user's password");
-var rootCertFileNameOption = new Option<string?>("--rootCertFileName", "The file name of a root certificate to install.");
-var disableServerCertValidationOption = new Option<bool>("--disableServerCertValidation", () => false, "Disable server certificate validition or not.");
+var rootCertFileNameOption = new Option<string?>("--rootCertFileName", "The file name of a root certificate to install");
+var disableServerCertValidationOption = new Option<bool>("--disableServerCertValidation", () => false, "Disable server certificate validition or not");
 var queueNameOption = new Option<string>("--queueName", () => "queue1", "The name of the queue/topic");
-var verboseOption = new Option<bool>("--verbose", () => false, "Displays verbose output or not.");
+var verboseOption = new Option<bool>("--verbose", () => false, "Displays verbose output or not");
 
 var senderNameOption = new Option<string>("--senderName", () => "sender1", "The sender's name");
 var messageBodyOption = new Option<string>("--messageBody", () => "Hello World!", "The message's body");
