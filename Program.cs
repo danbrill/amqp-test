@@ -2,30 +2,35 @@
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Amqp;
+using Amqp.Framing;
+using AmqpTest;
 
 const string securedScheme = "AMQPS";
 const string unsecuredScheme = "AMQP";
 const int securedPort = 5671;
 const int unsecuredPort = 5672;
 
+const string defaultQueueName = "queue1";
+const string defaultTopicName = "topic1";
+
 var storeNameOption = new Option<StoreName>("--storeName", () => StoreName.My, "The store's name");
 var storeLocationOption = new Option<StoreLocation>("--storeLocation", () => StoreLocation.CurrentUser, "The store's location");
 
-var secureOption = new Option<bool>("--secure", () => false, $"Attempt an unsecured (False/missing = {unsecuredScheme}) or a secured (True = {securedScheme}) connection");
+var secureOption = new Option<bool>("--secure", () => false, $"Attempt an unsecured (False = {unsecuredScheme}) or a secured (True = {securedScheme}) connection");
 var hostOption = new Option<string>("--host", "The broker host name") {IsRequired = true};
 var portOption = new Option<int?>("--port", $"The broker host port (if not specified, {unsecuredPort} will be assumed for {unsecuredScheme}, {securedPort} for {securedScheme})");
 var userOption = new Option<string?>("--user", "The broker user's name");
 var passwordOption = new Option<string?>("--password", "The broker user's password");
 var rootCertFileNameOption = new Option<string?>("--rootCertFileName", "The file name of a root certificate to install");
-var disableServerCertValidationOption = new Option<bool>("--disableServerCertValidation", () => false, "Disable server certificate validition or not");
-var queueNameOption = new Option<string>("--queueName", () => "queue1", "The name of the queue/topic");
-var verboseOption = new Option<bool>("--verbose", () => false, "Displays verbose output or not");
+var disableServerCertValidationOption = new Option<bool>("--disableServerCertValidation", () => false, "Disable server certificate validation (True) or not (False)");
+var addressOption = new Option<string?>("--address", "The name of the queue/topic (if not specified, 'queue1' will be assumed for a queue, 'topic1' for a topic)");
+var addressSchemeOption = new Option<AddressScheme>("--addressType", () => AddressScheme.Queue, "The scheme of the address (queue or topic)");
+var verboseOption = new Option<bool>("--verbose", () => false, "Displays verbose output (True) or not (False)");
 
-var senderNameOption = new Option<string>("--senderName", () => "sender1", "The sender's name");
+var durableOption = new Option<bool>("--durable", () => false, "Send a durable (True) or non-durable (False) message");
 var messageBodyOption = new Option<string>("--messageBody", () => "Hello World!", "The message's body");
 var sendCountOption = new Option<int>("--sendCount", () => 1, "The number of identical messages to send");
 
-var receiverNameOption = new Option<string>("--receiverName", () => "receiver1", "The receiver's name");
 var receiveCountOption = new Option<int>("--receiveCount", () => 1, "The number of messages to be received before exiting");
 var receiveTimeoutSecondsOption = new Option<int>("--receiveTimeoutSeconds", () => -1, "The number of seconds to wait for a message to be available (-1 = wait forever)");
 
@@ -36,14 +41,14 @@ var listX509StoreCommand = new Command("listX509Store", "List the certififcates 
 
 var sendCommand = new Command("send", "AMQP message sender")
 {
-    secureOption, hostOption, portOption, userOption, passwordOption, rootCertFileNameOption, disableServerCertValidationOption, queueNameOption, verboseOption,
-    senderNameOption, messageBodyOption, sendCountOption
+    secureOption, hostOption, portOption, userOption, passwordOption, rootCertFileNameOption, disableServerCertValidationOption, addressOption, addressSchemeOption, verboseOption,
+    durableOption, messageBodyOption, sendCountOption
 };
 
 var receiveCommand = new Command("receive", "AMQP message receiver")
 {
-    secureOption, hostOption, portOption, userOption, passwordOption, rootCertFileNameOption, disableServerCertValidationOption, queueNameOption, verboseOption,
-    receiverNameOption, receiveCountOption, receiveTimeoutSecondsOption
+    secureOption, hostOption, portOption, userOption, passwordOption, rootCertFileNameOption, disableServerCertValidationOption, addressOption, addressSchemeOption, verboseOption,
+    receiveCountOption, receiveTimeoutSecondsOption
 };
 
 var rootCommand = new RootCommand("AMQP test tool") {listX509StoreCommand, sendCommand, receiveCommand};
@@ -60,13 +65,13 @@ listX509StoreCommand.SetHandler((StoreName storeName, StoreLocation storeLocatio
 }, storeNameOption, storeLocationOption);
 
 sendCommand.SetHandler(
-    (Func<bool, string, int?, string?, string?, string?, bool, string, bool, string, string, int, Task>)SendCommandHandler, 
-    secureOption, hostOption, portOption, userOption, passwordOption, rootCertFileNameOption, disableServerCertValidationOption, queueNameOption, verboseOption, senderNameOption, messageBodyOption, sendCountOption
+    (Func<bool, string, int?, string?, string?, string?, bool, string, AddressScheme, bool, bool, string, int, Task>)SendCommandHandler, 
+    secureOption, hostOption, portOption, userOption, passwordOption, rootCertFileNameOption, disableServerCertValidationOption, addressOption, addressSchemeOption, verboseOption, durableOption, messageBodyOption, sendCountOption
 );
 
 receiveCommand.SetHandler(
-    (Func<bool, string, int?, string?, string?, string?, bool, string, bool, string, int, int, Task>)ReceiveCommandHandler, 
-    secureOption, hostOption, portOption, userOption, passwordOption, rootCertFileNameOption, disableServerCertValidationOption, queueNameOption, verboseOption, receiverNameOption, receiveCountOption, receiveTimeoutSecondsOption
+    (Func<bool, string, int?, string?, string?, string?, bool, string, AddressScheme, bool, int, int, Task>)ReceiveCommandHandler, 
+    secureOption, hostOption, portOption, userOption, passwordOption, rootCertFileNameOption, disableServerCertValidationOption, addressOption, addressSchemeOption, verboseOption, receiveCountOption, receiveTimeoutSecondsOption
 );
 
 return rootCommand.Invoke(args);
@@ -99,7 +104,7 @@ static async Task SharedCommandHandler(bool secure, string host, int? port, stri
     }
 }
 
-static async Task SendCommandHandler(bool secure, string host, int? port, string? user, string? password, string? rootCertFileName, bool disableServerCertValidation, string queueName, bool verbose, string senderName, string messageBody, int sendCount)
+static async Task SendCommandHandler(bool secure, string host, int? port, string? user, string? password, string? rootCertFileName, bool disableServerCertValidation, string? address, AddressScheme scheme, bool verbose, bool durable, string messageBody, int sendCount)
 {
     await SharedCommandHandler(secure, host, port, user, password, rootCertFileName, disableServerCertValidation, verbose, async session =>
     {
@@ -107,8 +112,12 @@ static async Task SendCommandHandler(bool secure, string host, int? port, string
 
         try
         {
-            sender = new SenderLink(session, senderName, queueName);
+            var sendAddress = GetAddress(address, scheme);
+            if (verbose) {Console.WriteLine($"Sending to {sendAddress}");}
+
+            sender = new SenderLink(session, $"sender_{Guid.NewGuid()}", sendAddress);
             using var message = new Message(messageBody);
+            message.Header = new Header {Durable = durable};
 
             for (var i = 0; i < sendCount; i++)
             {
@@ -125,7 +134,7 @@ static async Task SendCommandHandler(bool secure, string host, int? port, string
     .ConfigureAwait(false);
 }
 
-static async Task ReceiveCommandHandler(bool secure, string host, int? port, string? user, string? password, string? rootCertFileName, bool disableServerCertValidation, string queueName, bool verbose, string receiverName, int receiveCount, int receiveTimeoutSeconds)
+static async Task ReceiveCommandHandler(bool secure, string host, int? port, string? user, string? password, string? rootCertFileName, bool disableServerCertValidation, string? address, AddressScheme scheme, bool verbose, int receiveCount, int receiveTimeoutSeconds)
 {
     await SharedCommandHandler(secure, host, port, user, password, rootCertFileName, disableServerCertValidation, verbose, async session =>
     {
@@ -133,8 +142,10 @@ static async Task ReceiveCommandHandler(bool secure, string host, int? port, str
 
         try
         {
-            receiver = new ReceiverLink(session, receiverName, queueName);
-
+            var receiveAddress = GetAddress(address, scheme);
+            if (verbose) {Console.WriteLine($"Receiving from {receiveAddress}");}
+            receiver = new ReceiverLink(session, $"receiver_{Guid.NewGuid()}", receiveAddress);
+            
             for (var i = 0; i < receiveCount; i++)
             {
                 using var message = await receiver.ReceiveAsync(receiveTimeoutSeconds == -1 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(receiveTimeoutSeconds)).ConfigureAwait(false);
@@ -208,3 +219,5 @@ static ConnectionFactory GetConnectionFactory(bool verbose)
 
     return factory;
 }
+
+static string GetAddress(string? address, AddressScheme scheme) => $"{scheme.ToString().ToLower()}://{address ?? (scheme == AddressScheme.Queue ? defaultQueueName : scheme == AddressScheme.Topic ? defaultTopicName : Guid.NewGuid().ToString())}";

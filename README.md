@@ -62,10 +62,11 @@ AMQP message sender<br>
 ``--user <user>`` The broker user's name<br>
 ``--password <password>`` The broker user's password<br>
 ``--rootCertFileName <rootCertFileName>`` The file name of a root certificate to install<br>
-``--disableServerCertValidation`` Disable server certificate validition or not [default: ``False``]<br>
-``--queueName <queueName>`` The name of the queue/topic [default: ``queue1``]<br>
-``--verbose`` Displays verbose output or not [default: ``False``]<br>
-``--senderName <senderName>`` The sender's name [default: ``sender1``]<br>
+``--disableServerCertValidation`` Disable server certificate validation (True) or not (False) [default: ``False``]<br>
+``--address <address>`` The name of the queue/topic (if not specified, 'queue1' will be assumed for a queue, 'topic1' for a topic)<br>
+``--addressType <Queue|Topic>`` The scheme of the address (queue or topic) [default: ``Queue``]<br>
+``--verbose`` Displays verbose output (True) or not (False) [default: ``False``]<br>
+``--durable`` Send a durable (True) or non-durable (False) message [default: ``False``]<br>
 ``--messageBody <messageBody>`` The message's body [default: ``Hello World!``]<br>
 ``--sendCount <sendCount>`` The number of identical messages to send [default: ``1``]<br>
 ``-?``, ``-h``, ``--help`` Show help and usage information<br>
@@ -89,10 +90,10 @@ AMQP message receiver<br>
 ``--user <user>`` The broker user's name<br>
 ``--password <password>`` The broker user's password<br>
 ``--rootCertFileName <rootCertFileName>`` The file name of a root certificate to install<br>
-``--disableServerCertValidation`` Disable server certificate validition or not [default: ``False``]<br>
-``--queueName <queueName>`` The name of the queue/topic [default: ``queue1``]<br>
-``--verbose`` Displays verbose output or not [default: ``False``]<br>
-``--receiverName <receiverName>`` The receiver's name [default: ``receiver1``]<br>
+``--disableServerCertValidation`` Disable server certificate validation (True) or not (False) [default: ``False``]<br>
+``--address <address>`` The name of the queue/topic (if not specified, 'queue1' will be assumed for a queue, 'topic1' for a topic)<br>
+``--addressType <Queue|Topic>`` The scheme of the address (queue or topic) [default: ``Queue``]<br>
+``--verbose`` Displays verbose output (True) or not (False) [default: ``False``]<br>
 ``--receiveCount <receiveCount>`` The number of messages to be received before exiting [default: ``1``]<br>
 ``--receiveTimeoutSeconds <receiveTimeoutSeconds>`` The number of seconds to wait for a message to be available (-1 = wait forever) [default: ``-1``]<br>
 ``-?``, ``-h``, ``--help`` Show help and usage information<br>
